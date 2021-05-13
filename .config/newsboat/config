@@ -1,0 +1,9 @@
+auto-reload yes
+external-url-viewer "urlview"
+color listnormal color149 default
+color listfocus black color149 bold
+color listnormal_unread color149 default
+color listfocus_unread black color149 bold
+color info color16 black bold
+color article color174 default
+browser "firefox --new-tab %u"

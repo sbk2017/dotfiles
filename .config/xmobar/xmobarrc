@@ -1,0 +1,22 @@
+Config { font = "xft:Grandstander light:size=16"
+       , additionalFonts = []
+       , bgColor = "#334d4d"
+       , fgColor = "#ffffff"
+       , alpha = 0
+       , position = Static { xpos = 825, ypos = 23, width = 270, height = 25}
+       , textOffset = -1
+       , iconOffset = -1
+       , lowerOnStart = True
+       , pickBroadest = False
+       , persistent = False
+       , hideOnStart = False
+       , iconRoot = "."
+       , allDesktops = True
+       , overrideRedirect = True
+       , commands = [ Run Date "%a %b %_d %Y %I:%M %P" "date" 60
+                    ]
+       , sepChar = "%"
+       , alignSep = "}{"
+       , template = "<fc=#ffffff>%date%</fc>"
+       }
+

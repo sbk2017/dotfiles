@@ -1,0 +1,75 @@
+separator_block_width=39
+#SCRIPT_DIR=~/.config/i3block
+
+
+[eth]
+label=ETH
+color=#f39d21
+markup=pango
+interval=20
+command=~/.config/i3blocks/eth.py
+
+[bnb]
+label=BNB
+color=#f39d21
+markup=pango
+interval=20
+command=~/.config/i3blocks/bnb.py
+
+[btc]
+label= 
+color=#f39d21
+markup=pango
+interval=20
+command=~/.config/i3blocks/btc.py $BLOCK_BUTTON
+
+[disk]
+command=~/.config/i3blocks/disk
+interval=30
+label=💾  
+
+[vpn]
+command=~/.config/i3blocks/vpn_block.py
+label=🔐 
+interval=60
+#color=#25F055
+
+[memory]
+command=~/.config/i3blocks/memory
+label=📟  
+interval=30
+
+[ip]
+command=hostname -I | awk '{ print "IP:" $1 }'
+interval=once
+
+[Prayer]
+command=~/.config/i3blocks/pt-block.py $BLOCK_BUTTON
+label=🕋 
+interval=900
+
+#[battery]
+#command=~/.config/i3blocks/battery
+#interval=30
+##label=BAT
+#label=⚡
+##BAT_NUMBER=0
+
+[shutdown_menu]
+full_text=Quit
+# If you are using FontAwesome, we recommend the power-off icon:
+# http://fontawesome.io/icon/power-off/
+command=~/.config/i3blocks/shutdown_menu
+#FG_COLOR=#bbbbbb
+#BG_COLOR=#111111
+#HLFG_COLOR=#111111
+#HLBG_COLOR=#bbbbbb
+#BORDER_COLOR=#222222
+#ROFI_TEXT=Menu:
+#ROFI_OPTIONS=-width 11 -location 3 -hide-scrollbar -bw 2
+#ZENITY_TITLE=Menu
+#ZENITY_TEXT=Action:
+#ZENITY_OPTIONS=--column= --hide-header
+#ENABLE_CONFIRMATIONS=true (must be true or false)
+#LAUNCHER=rofi (must be rofi or zenity)
+#LOCKSCRIPT=i3lock --color=${BG_COLOR#"#"}
