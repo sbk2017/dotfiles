@@ -9,6 +9,13 @@ from rofi import Rofi
 from dearpygui.core import *
 from dearpygui.simple import *
 
+
+# Prayer time calculations
+# This program will fetch the prayer time and Hijri date
+# from  https://api.aladhan.com/timingsByAddress/
+# based on Dubai location.
+# On click it will return the day prayers.
+
 name_list = ['Fajr', 'Dhuhr', 'Asr', 'Maghrib', 'Isha']
 rf = Rofi()
 
