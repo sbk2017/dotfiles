@@ -149,7 +149,7 @@ URxvt*buffered: off
 ! URxvt*skipScroll: boolean
 
 ! Fade the text by the given percentage when focus is lost; option -fade.
-URxvt*fading: 30
+!URxvt*fading: 30
 
 ! Fade to this colour, when fading is used (see fading:). The default colour is
 ! URxvt*fadeColor: #3465a4
@@ -367,7 +367,7 @@ URxvt*iso14755: false
 URxvt*iso14755_52:            false
 URxvt.keysym.Shift-Control-V: perl:clipboard:paste
 URxvt.keysym.Shift-Control-C: perl:clipboard:copy
-URxvt*transparent:            true
+URxvt*transparent:            false 
 URxvt*shading:                20
 !URxvt.tabbed.tabbar-fg:       2
 !URxvt.tabbed.tabbar-bg:       0
