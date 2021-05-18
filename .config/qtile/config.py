@@ -25,52 +25,112 @@
 # SOFTWARE.
 
 from typing import List  # noqa: F401
+from cryptoprice import btc, eth, bnb
+import os
+from vpn import Vpn
+from myip import Ip
 
-from libqtile import bar, layout, widget
+from libqtile import bar, layout, widget, hook
 from libqtile.config import Click, Drag, Group, Key, Match, Screen
 from libqtile.lazy import lazy
-from libqtile.utils import guess_terminal
 
 mod = "mod4"
-terminal = guess_terminal()
+ip = Ip()
+
+@hook.subscribe.startup_once
+def autostart():
+    home = os.path.expanduser('~/.config/qtile/autostart.sh')
+    os.system(f'sh {home}')
+
 
 keys = [
     # Switch between windows
-    Key([mod], "h", lazy.layout.left(), desc="Move focus to left"),
-    Key([mod], "l", lazy.layout.right(), desc="Move focus to right"),
-    Key([mod], "j", lazy.layout.down(), desc="Move focus down"),
-    Key([mod], "k", lazy.layout.up(), desc="Move focus up"),
+    Key([mod], "Left", lazy.layout.left(), desc="Move focus to left"),
+    Key([mod], "Right", lazy.layout.right(), desc="Move focus to right"),
+    Key([mod], "Down", lazy.layout.down(), desc="Move focus down"),
+    Key([mod], "Up", lazy.layout.up(), desc="Move focus up"),
     Key([mod], "space", lazy.layout.next(),
         desc="Move window focus to other window"),
 
     # Move windows between left/right columns or move up/down in current stack.
     # Moving out of range in Columns layout will create new column.
-    Key([mod, "shift"], "h", lazy.layout.shuffle_left(),
-        desc="Move window to the left"),
-    Key([mod, "shift"], "l", lazy.layout.shuffle_right(),
-        desc="Move window to the right"),
-    Key([mod, "shift"], "j", lazy.layout.shuffle_down(),
-        desc="Move window down"),
-    Key([mod, "shift"], "k", lazy.layout.shuffle_up(), desc="Move window up"),
+    Key([mod, "shift"], "Left", lazy.layout.shuffle_left(), desc="Move window to the left"),
+    Key([mod, "shift"], "Right", lazy.layout.shuffle_right(), desc="Move window to the right"),
+    Key([mod, "shift"], "Down", lazy.layout.shuffle_down(),  desc="Move window down"),
+    Key([mod, "shift"], "Up", lazy.layout.shuffle_up(), desc="Move window up"),
 
     # Grow windows. If current window is on the edge of screen and direction
     # will be to screen edge - window would shrink.
-    Key([mod, "control"], "h", lazy.layout.grow_left(),
-        desc="Grow window to the left"),
-    Key([mod, "control"], "l", lazy.layout.grow_right(),
-        desc="Grow window to the right"),
-    Key([mod, "control"], "j", lazy.layout.grow_down(),
-        desc="Grow window down"),
-    Key([mod, "control"], "k", lazy.layout.grow_up(), desc="Grow window up"),
-    Key([mod], "n", lazy.layout.normalize(), desc="Reset all window sizes"),
+    Key(
+        [mod, "control"], "Left",
+        lazy.spawn("amixer -q set Master 5%+"),
+        desc="Grow window to the left"
+    ),
+    Key(
+        [mod, "control"], "Right",
+         lazy.spawn("amixer -q set Master 5%-"),
+        desc="Grow window to the right"
+    ),
+    Key(
+        [mod, "control"], "Down",
+        lazy.layout.shrink(),
+        desc="Grow window down"
+    ),
+    Key(
+        [mod, "control"], "Up",
+        lazy.layout.grow(),
+        desc="Grow window up"
+    ),
+    Key(
+        [mod], "m",
+        lazy.layout.maximize(),
+        desc="Reset all window sizes"
+    ),
+    Key(
+        [mod, "control"], "m",
+        lazy.layout.normalize(),
+        desc="Reset all window sizes"
+    ),
 
-    # Toggle between split and unsplit sides of stack.
-    # Split = all windows displayed
-    # Unsplit = 1 window displayed, like Max layout, but still with
-    # multiple stack panes
-    Key([mod, "shift"], "Return", lazy.layout.toggle_split(),
-        desc="Toggle between split and unsplit sides of stack"),
-    Key([mod], "Return", lazy.spawn('urxvt'), desc="Launch terminal"),
+    # Keybinding for programs
+    Key(
+        [mod], "Return",
+        lazy.spawn('urxvt'),
+        desc="Launch terminal"
+    ),
+    Key(
+        [mod], "d",
+        lazy.spawn('rofi -show drun -show-icons -modi drun'),
+        desc="Applications menu"
+    ),
+    Key(
+        [mod, 'shift'], "p",
+        lazy.spawn('rofi -modi "clipboard:greenclip print" -show clipboard -run-command "{cmd}"'),
+        desc="Applications menu"
+    ),
+    Key(
+        [mod], "p",
+        lazy.spawn(
+            'urxvt -name "myranger" -fn "xft:SauceCodePro Nerd Font Mono:size=10" -e sh -c "ranger"'),
+        desc="Launch terminal"
+    ),
+    Key(
+        [mod], "f",
+        lazy.spawn('firefox'),
+        desc="Launch firefox"
+    ),
+    Key(
+        [mod], "c",
+        lazy.spawn('urxvt -name "qalc" -geometry 30x15 -e qalc'),
+        desc="Launch firefox"
+    ),
+    Key(
+        [mod, 'shift'], "n",
+        lazy.spawn('urxvt -e newsboat -ru ~/.config/rss/rss.txt'),
+        desc="News boat launch"
+    ),
+    # Key([mod], "Return", lazy.spawn('urxvt'), desc="Launch terminal"),
+    # Key([mod], "Return", lazy.spawn('urxvt'), desc="Launch terminal"),
 
     # Toggle between different layouts as defined below
     Key([mod], "Tab", lazy.next_layout(), desc="Toggle between layouts"),
@@ -82,7 +142,17 @@ keys = [
         desc="Spawn a command using a prompt widget"),
 ]
 
-groups = [Group(i) for i in "123456789"]
+groups = [
+    Group('1'),
+    Group('2'),
+    Group('3'),
+    Group('4'),
+    Group('5'),
+    Group('6'),
+    Group('7'),
+    Group('8'),
+    Group('9')
+]
 
 for i in groups:
     keys.extend([
@@ -100,13 +170,17 @@ for i in groups:
     ])
 
 layouts = [
-    layout.Columns(border_focus_stack='#d75f5f'),
+    layout.MonadTall(
+        border_focus='#f9c434',
+        border_width=3,
+        margin=5,
+    ),
+    # layout.Columns(border_focus_stack='#d75f5f'),
     layout.Max(),
     # Try more layouts by unleashing below layouts.
     # layout.Stack(num_stacks=2),
     # layout.Bsp(),
-    # layout.Matrix(),
-    # layout.MonadTall(),
+    # layout.Matrix()
     # layout.MonadWide(),
     # layout.RatioTile(),
     # layout.Tile(),
@@ -116,28 +190,104 @@ layouts = [
 ]
 
 widget_defaults = dict(
-    font='sans',
+    font='Exo Medium',
     fontsize=12,
     padding=3,
+    background='#121210',
 )
 extension_defaults = widget_defaults.copy()
 
 screens = [
     Screen(
-        bottom=bar.Bar(
+        top=bar.Bar(
             [
                 widget.CurrentLayout(),
-                widget.GroupBox(),
+                widget.GroupBox(visible_groups=['1', '2', '3', '4', '5']),
                 widget.Prompt(),
                 widget.WindowName(),
-                widget.Chord(
-                    chords_colors={
-                        'launch': ("#ff0000", "#ffffff"),
-                    },
-                    name_transform=lambda name: name.upper(),
+                widget.Systray(),
+                widget.TextBox(
+                                font='FirCode',
+                                foreground='#e6b800',
+                                text=f'IP: {ip}',
+                                ),
+                # crypto prices block
+                widget.Sep(),
+                widget.GenPollText(
+                                   background='#121210',
+                                   foreground='#f4e02e',
+                                   func=btc,
+                                   fmt=' {0}',
+                                   update_interval= 30,
+                                   mounse_callbacks={'Button1': lambda qtile: qtile.cmd_spawn('python3 ~/.local/bin/btc_chart.py') }
+                                   ),
+                widget.GenPollText(
+                                   background='#121210',
+                                   foreground='#f4e02e',
+                                   func=eth,
+                                   fmt='ETH {0}',
+                                   update_interval=30,
+                                   ),
+                widget.GenPollText(
+                                   background='#121210',
+                                   foreground='#f4e02e',
+                                   func=bnb,
+                                   fmt='BNB {0}',
+                                   update_interval=30,
+                                   ),
+                widget.Sep(),
+                widget.Memory(
+                              font="Noto Sans",
+                              format='{MemUsed:,.0f}M ',
+                              update_interval=1,
+                              fontsize=12,
+                        # foreground = colors[5],
+                        # background = colors[1],
+                       ),
+                widget.GenPollText(
+                                   func=Vpn,
+                                   fmt='{0}',
+                                   update_interval=30,
+                                   ),
+                widget.DF(partition='/',
+                          fmt='{0}'
+                          ),
+                widget.TextBox(
+                               text=u'\uF11C ',
+                               font='Hack Nerd Font',
+                    ),
+                widget.KeyboardLayout(
+                                      configured_keyboards=['us', 'ara'],
+                                      padding=2,
+                                      fontshadow='000000'
+                                      ),
+                # widget.TextPol(),
+                widget.TextBox(
+                               text=u'\uF025 ',
+                               font='Hack Nerd Font',
+                    ),
+                widget.Volume(
+                    step=5,
+                    padding=0,
+                    margin=0,
+                    volume_app="pavucontrol",
+                    fmt=" {0} ",
+                    # background=colors["volume_bg"],
                 ),
-                widget.TextBox("default config", name="default"),
-                widget.TextBox("Press &lt;M-r&gt; to spawn", foreground="#d75f5f"),
+                widget.Sep(),
+                widget.Clock(format='%d-%b %I:%M %p'),
+                widget.QuickExit(),
+            ],
+            24,
+        ),
+    ),
+    Screen(
+        top=bar.Bar(
+            [
+                widget.CurrentLayout(),
+                widget.GroupBox(visible_groups=['6', '7', '8', '9']),
+                widget.Prompt(),
+                widget.WindowName(),
                 widget.Systray(),
                 widget.Clock(format='%Y-%m-%d %a %I:%M %p'),
                 widget.QuickExit(),
@@ -170,6 +320,8 @@ floating_layout = layout.Floating(float_rules=[
     Match(wm_class='ssh-askpass'),  # ssh-askpass
     Match(title='branchdialog'),  # gitk
     Match(title='pinentry'),  # GPG key password entry
+    Match(title='qalc'),  # terminal calculator
+    Match(title='myranger'),  # ranger
 ])
 auto_fullscreen = True
 focus_on_window_activation = "smart"
