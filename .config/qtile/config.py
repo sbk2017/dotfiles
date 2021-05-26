@@ -25,17 +25,15 @@
 # SOFTWARE.
 
 from typing import List  # noqa: F401
-from cryptoprice import btc, eth, bnb
 import os
-from vpn import Vpn
-from myip import Ip
-
-from libqtile import bar, layout, widget, hook
+from datetime import datetime
+from libqtile import bar, layout, widget, hook, qtile
 from libqtile.config import Click, Drag, Group, Key, Match, Screen
 from libqtile.lazy import lazy
+import mywidget
+from colors import color
 
 mod = "mod4"
-ip = Ip()
 
 @hook.subscribe.startup_once
 def autostart():
@@ -129,7 +127,10 @@ keys = [
         lazy.spawn('urxvt -e newsboat -ru ~/.config/rss/rss.txt'),
         desc="News boat launch"
     ),
-    # Key([mod], "Return", lazy.spawn('urxvt'), desc="Launch terminal"),
+    Key([], "Print",
+        # lazy.spawn(f'gnome-screenshot -a -f {ScreenshotDir + datetime.strftime(datetime.now(), "%Y-%m-%d-%H%M%S")}.png'),
+        lazy.spawn('scrotmenu'),
+        desc="Launch terminal"),
     # Key([mod], "Return", lazy.spawn('urxvt'), desc="Launch terminal"),
 
     # Toggle between different layouts as defined below
@@ -137,7 +138,7 @@ keys = [
     Key([mod], "w", lazy.window.kill(), desc="Kill focused window"),
 
     Key([mod, "control"], "r", lazy.restart(), desc="Restart Qtile"),
-    Key([mod, "control"], "q", lazy.shutdown(), desc="Shutdown Qtile"),
+    Key([mod, "control"], "q", lazy.spawn('rofi -show p -modi p:rofi-power-menu'), desc="Shutdown Qtile"),
     Key([mod], "r", lazy.spawncmd(),
         desc="Spawn a command using a prompt widget"),
 ]
@@ -171,10 +172,10 @@ for i in groups:
 
 layouts = [
     layout.MonadTall(
-        border_focus='#f9c434',
-        border_width=3,
-        margin=5,
-    ),
+                border_focus=color.color4,
+                border_width=3,
+                margin=10,
+               ),
     # layout.Columns(border_focus_stack='#d75f5f'),
     layout.Max(),
     # Try more layouts by unleashing below layouts.
@@ -190,10 +191,11 @@ layouts = [
 ]
 
 widget_defaults = dict(
-    font='Exo Medium',
+    font='FirCode',
     fontsize=12,
     padding=3,
-    background='#121210',
+    background=color.background,
+    foreground=color.color12,
 )
 extension_defaults = widget_defaults.copy()
 
@@ -204,79 +206,70 @@ screens = [
                 widget.CurrentLayout(),
                 widget.GroupBox(visible_groups=['1', '2', '3', '4', '5']),
                 widget.Prompt(),
-                widget.WindowName(),
+                widget.WindowName(
+                                  format='{name}',
+                                  max_chars=30),
                 widget.Systray(),
-                widget.TextBox(
-                                font='FirCode',
-                                foreground='#e6b800',
-                                text=f'IP: {ip}',
-                                ),
+                widget.Clock(
+                             font='Exo SemiBold Regular',
+                             fontsize=14,
+                             format='%d-%b %I:%M %p', 
+                             foreground=color.foreground,
+                             padding=30,
+                             ),
+                widget.Spacer(),
                 # crypto prices block
                 widget.Sep(),
-                widget.GenPollText(
-                                   background='#121210',
-                                   foreground='#f4e02e',
-                                   func=btc,
-                                   fmt=' {0}',
-                                   update_interval= 30,
-                                   mounse_callbacks={'Button1': lambda qtile: qtile.cmd_spawn('python3 ~/.local/bin/btc_chart.py') }
-                                   ),
-                widget.GenPollText(
-                                   background='#121210',
-                                   foreground='#f4e02e',
-                                   func=eth,
-                                   fmt='ETH {0}',
-                                   update_interval=30,
-                                   ),
-                widget.GenPollText(
-                                   background='#121210',
-                                   foreground='#f4e02e',
-                                   func=bnb,
-                                   fmt='BNB {0}',
-                                   update_interval=30,
-                                   ),
+                widget.TextBox(text='BTC'),
+                mywidget.Crypto(symbol='BTCUSDT', update_interval=10, 
+                                mouse_callbacks={
+                                                'Button1': lambda: qtile.cmd_spawn('chartbtc')
+                                                },
+                                ),
+                widget.TextBox(text='ETH'),
+                mywidget.Crypto(symbol='ETHUSDT', update_interval=10),
+                widget.TextBox(text='BNB'),
+                mywidget.Crypto(symbol='BNBUSDT', update_interval=10),
                 widget.Sep(),
+                mywidget.Icon(icon='disk'),
+                mywidget.Disk(
+                              update_interval=120,
+                              foreground=color.color11),
+                mywidget.Icon(icon='disk1'),
+                mywidget.Disk(
+                              update_interval=120,
+                              foreground=color.color11, 
+                              partition='/mnt/Data',
+                              ),
+                mywidget.Icon(icon='mem'),
                 widget.Memory(
-                              font="Noto Sans",
+                              foreground=color.color11,
                               format='{MemUsed:,.0f}M ',
-                              update_interval=1,
+                              update_interval=10,
                               fontsize=12,
-                        # foreground = colors[5],
-                        # background = colors[1],
-                       ),
-                widget.GenPollText(
-                                   func=Vpn,
-                                   fmt='{0}',
-                                   update_interval=30,
-                                   ),
-                widget.DF(partition='/',
-                          fmt='{0}'
-                          ),
-                widget.TextBox(
-                               text=u'\uF11C ',
-                               font='Hack Nerd Font',
-                    ),
+                             ),
+                mywidget.VPN(
+                            update_interval=30
+                            ),
+                mywidget.Icon(icon='keyboard'),
                 widget.KeyboardLayout(
+                                      foreground=color.color11,
                                       configured_keyboards=['us', 'ara'],
                                       padding=2,
-                                      fontshadow='000000'
                                       ),
-                # widget.TextPol(),
-                widget.TextBox(
-                               text=u'\uF025 ',
-                               font='Hack Nerd Font',
-                    ),
+                mywidget.Icon(icon='speaker'),
                 widget.Volume(
-                    step=5,
-                    padding=0,
-                    margin=0,
-                    volume_app="pavucontrol",
-                    fmt=" {0} ",
-                    # background=colors["volume_bg"],
-                ),
+                                step=5,
+                                padding=0,
+                                margin=0,
+                                volume_app="pavucontrol",
+                                fmt=" {0} ",
+                                foreground=color.color11,
+                             ),
                 widget.Sep(),
-                widget.Clock(format='%d-%b %I:%M %p'),
-                widget.QuickExit(),
+                widget.Systray(),
+                # widget.QuickExit(default_text='(LogOut)'),
+                widget.Sep(),
             ],
             24,
         ),
@@ -318,6 +311,7 @@ floating_layout = layout.Floating(float_rules=[
     Match(wm_class='makebranch'),  # gitk
     Match(wm_class='maketag'),  # gitk
     Match(wm_class='ssh-askpass'),  # ssh-askpass
+    Match(wm_class='DearPyGui'),  # ssh-askpass
     Match(title='branchdialog'),  # gitk
     Match(title='pinentry'),  # GPG key password entry
     Match(title='qalc'),  # terminal calculator
