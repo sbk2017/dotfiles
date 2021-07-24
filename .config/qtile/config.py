@@ -34,6 +34,7 @@ import mywidget
 from colors import color
 
 mod = "mod4"
+iconsdir = os.path.expanduser('~/.config/icons/')
 
 @hook.subscribe.startup_once
 def autostart():
@@ -93,7 +94,7 @@ keys = [
     # Keybinding for programs
     Key(
         [mod], "Return",
-        lazy.spawn('urxvt'),
+        lazy.spawn('st'),
         desc="Launch terminal"
     ),
     Key(
@@ -109,8 +110,13 @@ keys = [
     Key(
         [mod], "p",
         lazy.spawn(
-            'urxvt -name "myranger" -fn "xft:SauceCodePro Nerd Font Mono:size=10" -e sh -c "ranger"'),
+            'st -n "myranger" -f "SauceCodePro Nerd Font Mono:size=10" -e sh -c "ranger"'),
         desc="Launch terminal"
+    ),
+    Key(
+        [mod, 'shift'], "w",
+        lazy.spawn('surf web.whatsapp.com'),
+        desc="Launch firefox"
     ),
     Key(
         [mod], "f",
@@ -127,10 +133,16 @@ keys = [
         lazy.spawn('urxvt -e newsboat -ru ~/.config/rss/rss.txt'),
         desc="News boat launch"
     ),
+    # Using scrot and flameshot for screenshots.
     Key([], "Print",
         # lazy.spawn(f'gnome-screenshot -a -f {ScreenshotDir + datetime.strftime(datetime.now(), "%Y-%m-%d-%H%M%S")}.png'),
         lazy.spawn('scrotmenu'),
         desc="Launch terminal"),
+    Key([mod], "Print",
+        # lazy.spawn(f'gnome-screenshot -a -f {ScreenshotDir + datetime.strftime(datetime.now(), "%Y-%m-%d-%H%M%S")}.png'),
+        lazy.spawn('flameshot gui ~/Pictures/flameshot'),
+        desc="flameshot for screes shots"),
+    
     # Key([mod], "Return", lazy.spawn('urxvt'), desc="Launch terminal"),
 
     # Toggle between different layouts as defined below
@@ -172,9 +184,9 @@ for i in groups:
 
 layouts = [
     layout.MonadTall(
-                border_focus=color.color4,
+                border_focus=color.active,
                 border_width=3,
-                margin=10,
+                margin=15,
                ),
     # layout.Columns(border_focus_stack='#d75f5f'),
     layout.Max(),
@@ -195,7 +207,7 @@ widget_defaults = dict(
     fontsize=12,
     padding=3,
     background=color.background,
-    foreground=color.color12,
+    foreground=color.foreground,
 )
 extension_defaults = widget_defaults.copy()
 
@@ -204,12 +216,16 @@ screens = [
         top=bar.Bar(
             [
                 widget.CurrentLayout(),
-                widget.GroupBox(visible_groups=['1', '2', '3', '4', '5']),
+                widget.GroupBox(
+                    visible_groups=['1', '2', '3', '4', '5'],
+                    foreground = color.foreground,
+                    borderwidth = 2,
+                    this_current_screen_border = color.active,
+                    ),
                 widget.Prompt(),
                 widget.WindowName(
                                   format='{name}',
                                   max_chars=30),
-                widget.Systray(),
                 widget.Clock(
                              font='Exo SemiBold Regular',
                              fontsize=14,
@@ -218,17 +234,25 @@ screens = [
                              padding=30,
                              ),
                 widget.Spacer(),
-                # crypto prices block
                 widget.Sep(),
-                widget.TextBox(text='BTC'),
+                mywidget.TwaslEmail(update_interval=120,
+                                    mouse_callbacks={
+                                            'Button1': lambda: qtile.cmd_spawn('thunderbird')
+                                    }),
+                widget.Sep(),
+                # crypto prices block
+                widget.Image(filename=iconsdir + 'btc-color.png', margin=3),
+                # widget.TextBox(text='BTC'),
                 mywidget.Crypto(symbol='BTCUSDT', update_interval=10, 
                                 mouse_callbacks={
                                                 'Button1': lambda: qtile.cmd_spawn('chartbtc')
                                                 },
                                 ),
-                widget.TextBox(text='ETH'),
+                widget.Image(filename=iconsdir + 'eth-1600.png'),
+                # widget.TextBox(text='ETH'),
                 mywidget.Crypto(symbol='ETHUSDT', update_interval=10),
-                widget.TextBox(text='BNB'),
+                widget.Image(filename=iconsdir + 'bnb-color.png', margin=3),
+                # widget.TextBox(text='BNB'),
                 mywidget.Crypto(symbol='BNBUSDT', update_interval=10),
                 widget.Sep(),
                 mywidget.Icon(icon='disk'),
@@ -270,6 +294,9 @@ screens = [
                 widget.Systray(),
                 # widget.QuickExit(default_text='(LogOut)'),
                 widget.Sep(),
+                widget.Clock(format='%Y-%m-%d %a %I:%M %p'),
+                # widget.Sep(),
+                # widget.Systray(),
             ],
             24,
         ),
@@ -278,12 +305,8 @@ screens = [
         top=bar.Bar(
             [
                 widget.CurrentLayout(),
-                widget.GroupBox(visible_groups=['6', '7', '8', '9']),
-                widget.Prompt(),
                 widget.WindowName(),
-                widget.Systray(),
                 widget.Clock(format='%Y-%m-%d %a %I:%M %p'),
-                widget.QuickExit(),
             ],
             24,
         ),

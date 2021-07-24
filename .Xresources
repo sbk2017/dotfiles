@@ -49,7 +49,7 @@ URxvt.font: xft:Hack Nerd Font:size=9
 *.color15:      #ffffff
 
 
-!*scrollBar:                      false
+*scrollBar:                      false
 !URxvt*scrollTtyOutput:           true
 !URxvt*foreground:                     #c0b18b
 !xterm*background:                     #1f1f1f
@@ -367,8 +367,8 @@ URxvt*iso14755: false
 URxvt*iso14755_52:            false
 URxvt.keysym.Shift-Control-V: perl:clipboard:paste
 URxvt.keysym.Shift-Control-C: perl:clipboard:copy
-URxvt*transparent:            false 
-URxvt*shading:                20
+URxvt*transparent:            true
+URxvt*shading:                15
 !URxvt.tabbed.tabbar-fg:       2
 !URxvt.tabbed.tabbar-bg:       0
 URxvt.tabbed.tab-fg:          3
